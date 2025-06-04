@@ -1,0 +1,32 @@
+name: Deploy Rust docs to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Generate documentation
+        run: cargo doc --no-deps --all-features
+
+      - name: Redirect to crate docs
+        run: |
+          echo '<meta http-equiv="refresh" content="0; url=qcmdpc_markov_ncw/index.html">' > target/doc/index.html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target/doc
+
