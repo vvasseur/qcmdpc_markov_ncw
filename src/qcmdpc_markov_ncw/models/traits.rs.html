@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/models/traits.rs`."><title>traits.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-1a91846b.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="qcmdpc_markov_ncw" data-themes="" data-resource-suffix="" data-rustdoc-version="1.88.0 (6b00bc388 2025-06-23)" data-channel="1.88.0" data-search-js="search-f7877310.js" data-settings-js="settings-5514c975.js" ><script src="../../../static.files/storage-4e99c027.js"></script><script defer src="../../../static.files/src-script-63605ae7.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-7ef8a74a.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">qcmdpc_markov_ncw/models/</div>traits.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="doccomment">//! Traits for the Markov chain models.
+<a href=#2 id=2 data-nosnippet>2</a></span><span class="kw">use </span>std::{collections::HashMap, hash::Hash};
+<a href=#3 id=3 data-nosnippet>3</a>
+<a href=#4 id=4 data-nosnippet>4</a><span class="kw">use crate</span>::{code::MDPCCode, errors::Result, f64log::F64Log};
+<a href=#5 id=5 data-nosnippet>5</a>
+<a href=#6 id=6 data-nosnippet>6</a><span class="doccomment">/// Transitions between states in the Markov chain.
+<a href=#7 id=7 data-nosnippet>7</a></span><span class="kw">pub trait </span>TransitionModel&lt;S: State&gt;: Send + Sync {
+<a href=#8 id=8 data-nosnippet>8</a>    <span class="doccomment">/// Generates an iterator of possible states for t between t_low and t_high
+<a href=#9 id=9 data-nosnippet>9</a>    /// inclusive.
+<a href=#10 id=10 data-nosnippet>10</a>    </span><span class="kw">fn </span>iter_all_states(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;(usize, Vec&lt;S&gt;)&gt;;
+<a href=#11 id=11 data-nosnippet>11</a>
+<a href=#12 id=12 data-nosnippet>12</a>    <span class="doccomment">/// Computes the possible next states and their transition probabilities
+<a href=#13 id=13 data-nosnippet>13</a>    /// from a given state
+<a href=#14 id=14 data-nosnippet>14</a>    ///
+<a href=#15 id=15 data-nosnippet>15</a>    /// # Arguments
+<a href=#16 id=16 data-nosnippet>16</a>    /// * `state` - The current state to transition from
+<a href=#17 id=17 data-nosnippet>17</a>    /// * `threshold` - The threshold value for transitions
+<a href=#18 id=18 data-nosnippet>18</a>    ///
+<a href=#19 id=19 data-nosnippet>19</a>    /// # Returns
+<a href=#20 id=20 data-nosnippet>20</a>    /// A Result containing a vector of tuples with possible next states and
+<a href=#21 id=21 data-nosnippet>21</a>    /// their transition probabilities
+<a href=#22 id=22 data-nosnippet>22</a>    </span><span class="kw">fn </span>transitions_from(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;</span>S, threshold: Vec&lt;usize&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;(S, F64Log)&gt;&gt;;
+<a href=#23 id=23 data-nosnippet>23</a>}
+<a href=#24 id=24 data-nosnippet>24</a>
+<a href=#25 id=25 data-nosnippet>25</a><span class="doccomment">/// Defines an interface for counter-based models in MDPC decoding.
+<a href=#26 id=26 data-nosnippet>26</a>/// Provides methods for calculating counter probability distributions
+<a href=#27 id=27 data-nosnippet>27</a>/// based on decoder states.
+<a href=#28 id=28 data-nosnippet>28</a></span><span class="kw">pub trait </span>CounterModel {
+<a href=#29 id=29 data-nosnippet>29</a>    <span class="doccomment">/// The state type associated with this model.
+<a href=#30 id=30 data-nosnippet>30</a>    </span><span class="kw">type </span>State: Clone;
+<a href=#31 id=31 data-nosnippet>31</a>    <span class="kw">type </span>BasicState: Clone;
+<a href=#32 id=32 data-nosnippet>32</a>    <span class="doccomment">/// The counter type associated with this model.
+<a href=#33 id=33 data-nosnippet>33</a>    </span><span class="kw">type </span>Counter: Counter&lt;<span class="self">Self</span>::BasicState&gt;;
+<a href=#34 id=34 data-nosnippet>34</a>
+<a href=#35 id=35 data-nosnippet>35</a>    <span class="doccomment">/// Gets the probability distribution of counters for a state.
+<a href=#36 id=36 data-nosnippet>36</a>    ///
+<a href=#37 id=37 data-nosnippet>37</a>    /// Calculates counter distributions needed for the decoding process
+<a href=#38 id=38 data-nosnippet>38</a>    /// at the current decoder state.
+<a href=#39 id=39 data-nosnippet>39</a>    ///
+<a href=#40 id=40 data-nosnippet>40</a>    /// # Arguments
+<a href=#41 id=41 data-nosnippet>41</a>    ///
+<a href=#42 id=42 data-nosnippet>42</a>    /// * `state` - A reference to the decoder state
+<a href=#43 id=43 data-nosnippet>43</a>    ///
+<a href=#44 id=44 data-nosnippet>44</a>    /// # Returns
+<a href=#45 id=45 data-nosnippet>45</a>    ///
+<a href=#46 id=46 data-nosnippet>46</a>    /// Counter probability distribution for the given state, or an error
+<a href=#47 id=47 data-nosnippet>47</a>    /// if the state cannot have counters.
+<a href=#48 id=48 data-nosnippet>48</a>    </span><span class="kw">fn </span>get_counters_distribution(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;</span><span class="self">Self</span>::State) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Counter&gt;;
+<a href=#49 id=49 data-nosnippet>49</a>}
+<a href=#50 id=50 data-nosnippet>50</a>
+<a href=#51 id=51 data-nosnippet>51</a><span class="doccomment">/// Defines an interface for initial states distribution in MDPC decoding.
+<a href=#52 id=52 data-nosnippet>52</a>/// Provides methods for calculating state probability distributions
+<a href=#53 id=53 data-nosnippet>53</a>/// based on error weights.
+<a href=#54 id=54 data-nosnippet>54</a></span><span class="kw">pub trait </span>InitialStateModel {
+<a href=#55 id=55 data-nosnippet>55</a>    <span class="doccomment">/// The state type associated with this model.
+<a href=#56 id=56 data-nosnippet>56</a>    </span><span class="kw">type </span>State: Clone;
+<a href=#57 id=57 data-nosnippet>57</a>
+<a href=#58 id=58 data-nosnippet>58</a>    <span class="doccomment">/// Gets the initial states probability distribution for a given error
+<a href=#59 id=59 data-nosnippet>59</a>    /// weight.
+<a href=#60 id=60 data-nosnippet>60</a>    ///
+<a href=#61 id=61 data-nosnippet>61</a>    /// # Arguments
+<a href=#62 id=62 data-nosnippet>62</a>    ///
+<a href=#63 id=63 data-nosnippet>63</a>    /// * `t` - Number of errors (error weight)
+<a href=#64 id=64 data-nosnippet>64</a>    ///
+<a href=#65 id=65 data-nosnippet>65</a>    /// # Returns
+<a href=#66 id=66 data-nosnippet>66</a>    ///
+<a href=#67 id=67 data-nosnippet>67</a>    /// Initial states probability distribution for the given error weight
+<a href=#68 id=68 data-nosnippet>68</a>    </span><span class="kw">fn </span>get_initial_distribution(<span class="kw-2">&amp;</span><span class="self">self</span>, t: usize) -&gt; HashMap&lt;<span class="self">Self</span>::State, F64Log&gt;;
+<a href=#69 id=69 data-nosnippet>69</a>}
+<a href=#70 id=70 data-nosnippet>70</a>
+<a href=#71 id=71 data-nosnippet>71</a><span class="doccomment">/// State in the MDPC decoding process.
+<a href=#72 id=72 data-nosnippet>72</a>///
+<a href=#73 id=73 data-nosnippet>73</a>/// This trait defines the common interface for different types of states used
+<a href=#74 id=74 data-nosnippet>74</a>/// in the MDPC code decoding algorithm. Implementations of this trait should
+<a href=#75 id=75 data-nosnippet>75</a>/// provide methods for calculating counters, determining decoded and blocked
+<a href=#76 id=76 data-nosnippet>76</a>/// states, and generating possible states from syndrome and error weights.
+<a href=#77 id=77 data-nosnippet>77</a>///
+<a href=#78 id=78 data-nosnippet>78</a>/// Every state must be able to convert to a basic representation (via
+<a href=#79 id=79 data-nosnippet>79</a>/// `to_basic()`) . This basic representation provides the essential information
+<a href=#80 id=80 data-nosnippet>80</a>/// needed for computation in the Markov chain.
+<a href=#81 id=81 data-nosnippet>81</a></span><span class="kw">pub trait </span>State: Clone + Eq + Hash {
+<a href=#82 id=82 data-nosnippet>82</a>    <span class="kw">type </span>Basic: Clone;
+<a href=#83 id=83 data-nosnippet>83</a>
+<a href=#84 id=84 data-nosnippet>84</a>    <span class="doccomment">/// Returns the decoded state.
+<a href=#85 id=85 data-nosnippet>85</a>    </span><span class="kw">fn </span>decoded_state() -&gt; <span class="self">Self</span>;
+<a href=#86 id=86 data-nosnippet>86</a>
+<a href=#87 id=87 data-nosnippet>87</a>    <span class="doccomment">/// Returns a blocked state based on the given state.
+<a href=#88 id=88 data-nosnippet>88</a>    </span><span class="kw">fn </span>to_blocked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>;
+<a href=#89 id=89 data-nosnippet>89</a>
+<a href=#90 id=90 data-nosnippet>90</a>    <span class="doccomment">/// Returns the syndrome weight of the current state.
+<a href=#91 id=91 data-nosnippet>91</a>    ///
+<a href=#92 id=92 data-nosnippet>92</a>    /// # Errors
+<a href=#93 id=93 data-nosnippet>93</a>    /// Returns an error if called on a state that does not have a syndrome
+<a href=#94 id=94 data-nosnippet>94</a>    /// weight.
+<a href=#95 id=95 data-nosnippet>95</a>    </span><span class="kw">fn </span>s(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt;;
+<a href=#96 id=96 data-nosnippet>96</a>
+<a href=#97 id=97 data-nosnippet>97</a>    <span class="doccomment">/// Returns the error weight of the current state.
+<a href=#98 id=98 data-nosnippet>98</a>    ///
+<a href=#99 id=99 data-nosnippet>99</a>    /// # Errors
+<a href=#100 id=100 data-nosnippet>100</a>    /// Returns an error if called on a state that does not have an error
+<a href=#101 id=101 data-nosnippet>101</a>    /// weight.
+<a href=#102 id=102 data-nosnippet>102</a>    </span><span class="kw">fn </span>t(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;usize&gt;;
+<a href=#103 id=103 data-nosnippet>103</a>
+<a href=#104 id=104 data-nosnippet>104</a>    <span class="doccomment">/// Returns whether this state is absorbing in the Markov chain.
+<a href=#105 id=105 data-nosnippet>105</a>    </span><span class="kw">fn </span>is_absorbing(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
+<a href=#106 id=106 data-nosnippet>106</a>
+<a href=#107 id=107 data-nosnippet>107</a>    <span class="doccomment">/// Returns whether this state is a success in the Markov chain.
+<a href=#108 id=108 data-nosnippet>108</a>    </span><span class="kw">fn </span>is_success(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
+<a href=#109 id=109 data-nosnippet>109</a>}
+<a href=#110 id=110 data-nosnippet>110</a>
+<a href=#111 id=111 data-nosnippet>111</a><span class="doccomment">/// Counters associated with states in MDPC code decoding.
+<a href=#112 id=112 data-nosnippet>112</a>///
+<a href=#113 id=113 data-nosnippet>113</a>/// This trait defines methods for manipulating and analyzing counters that are
+<a href=#114 id=114 data-nosnippet>114</a>/// used in the decoding process of MDPC codes. It provides functionality for
+<a href=#115 id=115 data-nosnippet>115</a>/// conditioning counters, computing locking probabilities, applying sampling,
+<a href=#116 id=116 data-nosnippet>116</a>/// and computing transitions.
+<a href=#117 id=117 data-nosnippet>117</a>///
+<a href=#118 id=118 data-nosnippet>118</a>/// # Type Parameters
+<a href=#119 id=119 data-nosnippet>119</a>///
+<a href=#120 id=120 data-nosnippet>120</a>/// * `T`: A tuple type representing the state associated with these counters.
+<a href=#121 id=121 data-nosnippet>121</a></span><span class="kw">pub trait </span>Counter&lt;T: Clone&gt;: Sync {
+<a href=#122 id=122 data-nosnippet>122</a>    <span class="doccomment">/// Computes the "locking" probability for the given state and threshold.
+<a href=#123 id=123 data-nosnippet>123</a>    ///
+<a href=#124 id=124 data-nosnippet>124</a>    /// # Arguments
+<a href=#125 id=125 data-nosnippet>125</a>    /// * `code` - A reference to the MDPCCode.
+<a href=#126 id=126 data-nosnippet>126</a>    /// * `state` - The current state as a tuple.
+<a href=#127 id=127 data-nosnippet>127</a>    /// * `threshold` - The threshold value for decoding.
+<a href=#128 id=128 data-nosnippet>128</a>    ///
+<a href=#129 id=129 data-nosnippet>129</a>    /// # Returns
+<a href=#130 id=130 data-nosnippet>130</a>    /// The computed locking probability as a F64Log.
+<a href=#131 id=131 data-nosnippet>131</a>    </span><span class="kw">fn </span>lock(<span class="kw-2">&amp;</span><span class="self">self</span>, code: <span class="kw-2">&amp;</span>MDPCCode, state: T, threshold: usize) -&gt; (F64Log, F64Log);
+<a href=#132 id=132 data-nosnippet>132</a>
+<a href=#133 id=133 data-nosnippet>133</a>    <span class="doccomment">/// Modifies the counters based on uniform sampling.
+<a href=#134 id=134 data-nosnippet>134</a>    ///
+<a href=#135 id=135 data-nosnippet>135</a>    /// # Arguments
+<a href=#136 id=136 data-nosnippet>136</a>    /// * `code` - A reference to the MDPCCode.
+<a href=#137 id=137 data-nosnippet>137</a>    /// * `state` - The current state as a tuple.
+<a href=#138 id=138 data-nosnippet>138</a>    ///
+<a href=#139 id=139 data-nosnippet>139</a>    /// # Returns
+<a href=#140 id=140 data-nosnippet>140</a>    /// A Result containing either the modified counters or an error message.
+<a href=#141 id=141 data-nosnippet>141</a>    </span><span class="kw">fn </span>uniform(<span class="kw-2">&amp;</span><span class="self">self</span>, code: <span class="kw-2">&amp;</span>MDPCCode, state: T) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt;
+<a href=#142 id=142 data-nosnippet>142</a>    <span class="kw">where
+<a href=#143 id=143 data-nosnippet>143</a>        </span><span class="self">Self</span>: Sized;
+<a href=#144 id=144 data-nosnippet>144</a>
+<a href=#145 id=145 data-nosnippet>145</a>    <span class="doccomment">/// Computes transitions for the counters based on the given threshold.
+<a href=#146 id=146 data-nosnippet>146</a>    ///
+<a href=#147 id=147 data-nosnippet>147</a>    /// # Arguments
+<a href=#148 id=148 data-nosnippet>148</a>    /// * `threshold` - The threshold value for transitions.
+<a href=#149 id=149 data-nosnippet>149</a>    ///
+<a href=#150 id=150 data-nosnippet>150</a>    /// # Returns
+<a href=#151 id=151 data-nosnippet>151</a>    /// A tuple containing the new counters, flip probability, and no-flip
+<a href=#152 id=152 data-nosnippet>152</a>    /// probability.
+<a href=#153 id=153 data-nosnippet>153</a>    </span><span class="kw">fn </span>filter(<span class="kw-2">&amp;</span><span class="self">self</span>, threshold: usize) -&gt; (<span class="self">Self</span>, F64Log)
+<a href=#154 id=154 data-nosnippet>154</a>    <span class="kw">where
+<a href=#155 id=155 data-nosnippet>155</a>        </span><span class="self">Self</span>: Sized;
+<a href=#156 id=156 data-nosnippet>156</a>}</code></pre></div></section></main></body></html>

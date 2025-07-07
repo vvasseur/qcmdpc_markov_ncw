@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["OffsetVec"],"trait":["Addable","Convolve","ConvolveAll","ConvolveAllPowers","ConvolveLeft","ConvolveOne","ConvolveSelf","Normalize","ScalarProduct","Simplify","TrimZeros","TruncateDistribution"]};

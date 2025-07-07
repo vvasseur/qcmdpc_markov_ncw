@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="QC-MDPC Markovian Model"><title>qcmdpc_markov_ncw - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-1a91846b.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="qcmdpc_markov_ncw" data-themes="" data-resource-suffix="" data-rustdoc-version="1.88.0 (6b00bc388 2025-06-23)" data-channel="1.88.0" data-search-js="search-f7877310.js" data-settings-js="settings-5514c975.js" ><script src="../static.files/storage-4e99c027.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-7ef8a74a.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../qcmdpc_markov_ncw/index.html">qcmdpc_<wbr>markov_<wbr>ncw</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#qc-mdpc-markovian-model" title="QC-MDPC Markovian Model">QC-MDPC Markovian Model</a><ul><li><a href="#references" title="References">References</a></li><li><a href="#models" title="Models">Models</a></li><li><a href="#subcommands" title="Subcommands">Subcommands</a></li><li><a href="#example-workflow" title="Example Workflow">Example Workflow</a></li></ul></li></ul><h3><a href="#modules">Crate Items</a></h3><ul class="block"><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#constants" title="Constants">Constants</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>qcmdpc_markov_ncw</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/qcmdpc_markov_ncw/lib.rs.html#1-198">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="qc-mdpc-markovian-model"><a class="doc-anchor" href="#qc-mdpc-markovian-model">§</a>QC-MDPC Markovian Model</h2>
+<p>This program implements a Markovian model to calculate the Decoding Failure
+Rate (DFR) of QC-MDPC codes using the step-by-step algorithm.
+We consider a QC-MDPC code <code>(h0, h1) ∈ (𝔽₂[x](xʳ − 1))²</code> where <code>|h0| = |h1| = d</code> for which we know that there exists near codewords:</p>
+<ul>
+<li><code>(x^i * h0, 0)</code> for <code>i</code> in <code>{0, ..., r}</code>,</li>
+<li><code>(0, x^i * h1)</code> for <code>i</code> in <code>{0, ..., r}</code>.</li>
+</ul>
+<p>These are of type <code>(d, d)</code>, producing error vectors of weight <code>d</code> with
+syndrome weight <code>d</code>. Near codewords of type <code>(a, b)</code> with small <code>a</code> and <code>b</code>
+are known to hinder decoder performance, causing the error floor phenomenon.</p>
+<p>This model accounts for these near codewords by using states <code>(s, t, u)</code>
+where:</p>
+<ul>
+<li><code>s</code> is the syndrome weight</li>
+<li><code>t</code> is the error weight</li>
+<li><code>u</code> is the number of common bits in the nearest near codeword</li>
+</ul>
+<p>By doing this, the model can predict an error floor.</p>
+<h3 id="references"><a class="doc-anchor" href="#references">§</a>References</h3>
+<blockquote>
+<p>[ALMPRTV25]: Sarah Arpin, Jun Bo Lau, Antoine Mesnard, Ray Perlner, Angela Robinson, Jean-Pierre Tillich &amp; Valentin Vasseur: Error floor prediction with Markov models for QC-MDPC codes. <a href="https://eprint.iacr.org/2025/153">https://eprint.iacr.org/2025/153</a></p>
+</blockquote>
+<blockquote>
+<p>[SV19]: Nicolas Sendrier &amp; Valentin Vasseur: On the Decoding Failure Rate
+of QC-MDPC Bit-Flipping Decoders. <a href="https://doi.org/10.1007/978-3-030-25510-7_22">https://doi.org/10.1007/978-3-030-25510-7_22</a></p>
+</blockquote>
+<h3 id="models"><a class="doc-anchor" href="#models">§</a>Models</h3><h4 id="specific-keys-6-of-almprtv25"><a class="doc-anchor" href="#specific-keys-6-of-almprtv25">§</a>Specific keys (§6 of [ALMPRTV25])</h4>
+<p>You can specify either a custom degree distribution or a code file using
+<code>--degrees</code> or <code>--code</code>. The <code>--degrees</code> option expects a JSON string
+representing the distribution of the degrees of the check nodes in the
+subgraph generated by the near codeword (for each block).</p>
+<p>While you can provide either option, internally the program always converts
+code files to degree distributions (this conversion happens automatically
+with <code>--code</code>). You can also explicitly convert a code file to its degree
+distribution using the <code>compute-degrees</code> command and then use that output
+with <code>--degrees</code>.</p>
+<p><strong>Format</strong></p>
+<p>The <code>--degrees</code> option expect a JSON array containing two arrays (one for
+each block), where each array contains objects with “degree” and “count”
+fields representing the degree distribution. For example:</p>
+<div class="example-wrap"><pre class="language-json"><code>[[{&quot;degree&quot;:0,&quot;count&quot;:1577},{&quot;degree&quot;:1,&quot;count&quot;:17},{&quot;degree&quot;:2,&quot;count&quot;:122},{&quot;degree&quot;:4,&quot;count&quot;:7}],
+ [{&quot;degree&quot;:0,&quot;count&quot;:1576},{&quot;degree&quot;:1,&quot;count&quot;:16},{&quot;degree&quot;:2,&quot;count&quot;:126},{&quot;degree&quot;:4,&quot;count&quot;:4},{&quot;degree&quot;:5,&quot;count&quot;:1}]]</code></pre></div>
+<p>The <code>--code</code> option expects a file containing the code description (one
+element of the support per line, blocks separated by an empty line).</p>
+<h5 id="default-perfect-keys-appendix-d-of-almprtv25"><a class="doc-anchor" href="#default-perfect-keys-appendix-d-of-almprtv25">§</a>Default: Perfect keys (Appendix D of [ALMPRTV25])</h5>
+<p>By default, this model considers “perfect” keys. These keys have distance
+spectra for each block <code>h0</code>, <code>h1</code> with multiplicity at most 1. This implies
+that the support of the blocks are simple cyclic difference sets.</p>
+<p>If you need to actually construct such a code, for example if you want to
+confirm the results of the model by comparing it with simulation data, these
+keys can be constructed using the Singer construction, yielding keys with <code>r = q^2 + q + 1</code> and <code>d ≤ q + 1</code> for any prime power <code>q</code>.</p>
+<h4 id="st-model-sv19"><a class="doc-anchor" href="#st-model-sv19">§</a>ST Model ([SV19])</h4>
+<p>You can use the simpler, earlier, model (ST model) by specifying the <code>--st</code>
+option along with a xi parameter. This model uses states <code>(s, t)</code> instead of
+<code>(s, t, u)</code>.</p>
+<h4 id="threshold-function"><a class="doc-anchor" href="#threshold-function">§</a>Threshold Function</h4>
+<p>The threshold function can be specified using the <code>--threshold</code> option as a
+list of mathematical expressions. These expressions can use variables <code>s</code>
+(syndrome weight) and <code>d</code> (column weight) and standard mathematical
+functions. Non-integer values are automatically rounded by default.</p>
+<p><strong>Examples</strong></p>
+<ul>
+<li>Simple majority threshold: <code>--threshold '["(d+1)/2"]'</code></li>
+<li>Floor of linear function: <code>--threshold '["floor(0.006016213884791455 * s + 8.797325112097532)"]'</code></li>
+<li>Ceiling of linear function: `–threshold ’[“ceil(0.006016213884791455 * s
+<ul>
+<li>8.797325112097532)“]’`</li>
+</ul>
+</li>
+<li>Multiple independent thresholds: `–threshold ’[“0.006016213884791455 * s
+<ul>
+<li>10.797325112097532“, “0.006016213884791455 * s + 8.797325112097532”,
+“(d+1)/2”]’`</li>
+</ul>
+</li>
+</ul>
+<h3 id="subcommands"><a class="doc-anchor" href="#subcommands">§</a>Subcommands</h3>
+<ol>
+<li>
+<p><code>transitions</code>: Calculate absorbing probabilities for each state in the
+Markov chain.</p>
+<p>Computes the probability of eventually reaching each absorbing state
+(Success, Blocked, NearCodeword)    from every possible decoder state. This
+is equivalent to computing the limit of A^n as n→∞, where A
+is the one-step transition matrix.</p>
+<p><strong>Usage</strong></p>
+<div class="example-wrap"><pre class="language-text"><code>transitions \
+    --r &lt;block_length&gt; \
+    --d &lt;block_weight&gt; \
+    --pass &lt;t_pass&gt; \
+    --fail &lt;t_fail&gt; \
+    [--output &lt;output_file&gt;] \
+    [--degrees &lt;custom_degree_distribution&gt; | --code &lt;code_file&gt;] \
+    [--threshold &lt;threshold_function&gt;] \
+    [--st &lt;xi_factor&gt;]</code></pre></div>
+<p>Output: zstd compressed binary file containing absorbing probabilities
+for each state.</p>
+</li>
+<li>
+<p><code>initial-states</code>: Calculate initial state distribution for a given error
+weight.</p>
+<p><strong>Usage</strong></p>
+<div class="example-wrap"><pre class="language-text"><code>initial-states \
+    --r &lt;block_length&gt; \
+    --d &lt;block_weight&gt; \
+    --t &lt;error_weight&gt; \
+    [--output &lt;output_file&gt;] \
+    [--degrees &lt;custom_degree_distribution&gt; | --code &lt;code_file&gt;] \
+    [--st &lt;xi_factor&gt;]</code></pre></div>
+<p>Output: zstd compressed binary file containing initial state
+probabilities.</p>
+</li>
+<li>
+<p><code>dfr</code>: Combine initial state distribution with absorbing probabilities to
+compute the final DFR.</p>
+<p><strong>Usage</strong></p>
+<div class="example-wrap"><pre class="language-text"><code>dfr \
+    --transitions &lt;transitions_file&gt; \
+    --initial-states &lt;initial_states_file&gt; \
+    [--output &lt;output_file&gt;] \
+    [--st &lt;xi_factor&gt;]</code></pre></div></li>
+</ol>
+<p>Output: JSON file containing detailed DFR analysis:</p>
+<ul>
+<li>For ST model: <code>{"dfr_blocked": 0.001234}</code></li>
+<li>For STUB model: <code>{"dfr_ncw": 0.001, "dfr_blocked": 0.002, "by_u": [...]}</code>
+where <code>by_u</code> contains detailed breakdown by u parameter values with
+conditional and absolute probabilities for each u value.</li>
+</ul>
+<ol start="4">
+<li>
+<p><code>compute-degrees</code>: Compute the degree distribution of near codewords in
+the Tanner graph.</p>
+<p>Usage:</p>
+<div class="example-wrap"><pre class="language-text"><code>compute-degrees \
+    --r &lt;block_length&gt; \
+    --code &lt;code_file&gt;</code></pre></div></li>
+</ol>
+<p>Output: JSON string containing the degree distribution</p>
+<h3 id="example-workflow"><a class="doc-anchor" href="#example-workflow">§</a>Example Workflow</h3>
+<p>A typical session using this model involves the following steps:
+(Using <code>r = 1723</code> as an example)</p>
+<ol>
+<li>
+<p>Compute absorbing probabilities: <code>sh cargo run --release -- transitions --r 1723 --d 17 --pass 1 --fail 200 --code code.txt --output transitions.json.zstd </code></p>
+</li>
+<li>
+<p>Compute initial state distribution: <code>sh cargo run --release -- initial-states --r 1723 --d 17 --t 55 --code code.txt --output initial_states.json.zstd </code></p>
+</li>
+<li>
+<p>Compute final DFR: <code>sh cargo run --release -- dfr --transitions transitions.json.zstd --initial-states initial_states.json.zstd --output final_dfr.json </code></p>
+</li>
+</ol>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="code/index.html" title="mod qcmdpc_markov_ncw::code">code</a></dt><dd>Structures needed for working with QC-MDPC codes</dd><dt><a class="mod" href="dfr/index.html" title="mod qcmdpc_markov_ncw::dfr">dfr</a></dt><dd>Computation of absorbing probabilities for Decoding Failure Rate (DFR)
+analysis.</dd><dt><a class="mod" href="distribution/index.html" title="mod qcmdpc_markov_ncw::distribution">distribution</a></dt><dd>Convolutions and other operations on probability distributions.</dd><dt><a class="mod" href="errors/index.html" title="mod qcmdpc_markov_ncw::errors">errors</a></dt><dd>Simple error handling for the QC-MDPC Markovian model.</dd><dt><a class="mod" href="f64log/index.html" title="mod qcmdpc_markov_ncw::f64log">f64log</a></dt><dd>Arithmetic in log domain using the <code>F64Log</code> type.</dd><dt><a class="mod" href="models/index.html" title="mod qcmdpc_markov_ncw::models">models</a></dt><dd>Core of the computation in the Markov chain.</dd><dt><a class="mod" href="serialize/index.html" title="mod qcmdpc_markov_ncw::serialize">serialize</a></dt><dd>Utilities for input/output.</dd><dt><a class="mod" href="threshold/index.html" title="mod qcmdpc_markov_ncw::threshold">threshold</a></dt><dd>Threshold functions for MDPC decoding using <em>evalexpr</em>.</dd></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.ALPHA.html" title="constant qcmdpc_markov_ncw::ALPHA">ALPHA</a></dt><dd>Alpha parameter used in distribution trimming</dd><dt><a class="constant" href="constant.COMPRESSION_LEVEL.html" title="constant qcmdpc_markov_ncw::COMPRESSION_LEVEL">COMPRESSION_<wbr>LEVEL</a></dt><dd>Default compression level for zstd output files</dd><dt><a class="constant" href="constant.EXACT_FACTORIAL_THRESHOLD.html" title="constant qcmdpc_markov_ncw::EXACT_FACTORIAL_THRESHOLD">EXACT_<wbr>FACTORIAL_<wbr>THRESHOLD</a></dt><dd>Threshold for exact/approximate factorial calculation</dd></dl></section></div></main></body></html>

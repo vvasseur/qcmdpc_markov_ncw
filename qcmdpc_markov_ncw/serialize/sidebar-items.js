@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["stream_read_from_file","stream_write_to_file"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["ALPHA","COMPRESSION_LEVEL","EXACT_FACTORIAL_THRESHOLD"],"mod":["code","dfr","distribution","errors","f64log","models","serialize","threshold"]};
